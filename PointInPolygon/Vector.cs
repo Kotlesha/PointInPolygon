@@ -4,8 +4,8 @@ namespace PointInPolygon
 {
     internal class Vector
     {
-        private readonly float point_1;
-        private readonly float point_2;
+        private float point_1;
+        private float point_2;
         private const float epsilon = 0.01f;
         private const double angle = 60.0;
 
@@ -113,6 +113,8 @@ namespace PointInPolygon
                 {
                     Console.WriteLine("Отрезок проходит через вершину!");
                     vector.Rotate();
+                    vector.point_1 = vector.P2.X - vector.P1.X;
+                    vector.point_2 = vector.P2.Y - vector.P1.Y;
                     Console.WriteLine($"Происходит поворот отрезка на {angle} градусов");
                     Console.WriteLine($"Новые координаты точки F: x = {vector.P2.X}, y = {vector.P2.Y}");
                     Run(vectors, vector);
