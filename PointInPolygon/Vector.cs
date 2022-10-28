@@ -49,9 +49,10 @@ namespace PointInPolygon
 
         private static Vector NormaliseVector(Vector vector) => new(vector.point_1 / vector.LengthOfVector, vector.point_2 / vector.LengthOfVector);
 
-        private static bool Intersection(Vector vector_1, Vector vector_2, ref bool flag)
+        private static bool Intersection(Vector vector_1, Vector vector_2, ConsoleColor color, ref bool flag)
         {
             Vector v1 = NormaliseVector(vector_1), v2 = NormaliseVector(vector_2);
+            Console.ForegroundColor = color;
 
             if (Math.Abs(vector_1.P1.X - vector_2.P1.X) < epsilon && Math.Abs(vector_1.P1.Y - vector_2.P1.Y) < epsilon
                 && Math.Abs(vector_1.P2.X - vector_2.P2.X) < epsilon && Math.Abs(vector_1.P2.Y - vector_2.P2.Y) < epsilon)
@@ -103,25 +104,26 @@ namespace PointInPolygon
             P2 = new(x, y);
         }
 
-        public static void Run(List<Vector> vectors, Vector vector, bool flag = true)
+        public static void Run(List<Vector> vectors, Vector vector, ConsoleColor[] colors, bool flag = true)
         {
             int count = 0;
 
-            foreach (Vector v in vectors)
+            for (int i = 0; i < vectors.Count; i++)
             {
                 if (!flag)
                 {
+                    Console.ForegroundColor = colors[i];
                     Console.WriteLine("Отрезок проходит через вершину!");
                     vector.Rotate();
                     vector.point_1 = vector.P2.X - vector.P1.X;
                     vector.point_2 = vector.P2.Y - vector.P1.Y;
                     Console.WriteLine($"Происходит поворот отрезка на {angle} градусов");
                     Console.WriteLine($"Новые координаты точки F: x = {vector.P2.X}, y = {vector.P2.Y}");
-                    Run(vectors, vector);
+                    Run(vectors, vector, colors);
                     return;
                 }
 
-                if (Intersection(v, vector, ref flag))
+                if (Intersection(vectors[i], vector, colors[i], ref flag))
                 {
                     count++;
                 }
