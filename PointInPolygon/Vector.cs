@@ -7,7 +7,7 @@ namespace PointInPolygon
         private float point_1;
         private float point_2;
         private const float epsilon = 0.01f;
-        private const double angle = 60.0;
+        private const double angle = 10.0;
 
         private float LengthOfVector => (float)Math.Sqrt(Math.Pow(point_1, 2) + Math.Pow(point_2, 2));
 
@@ -96,7 +96,7 @@ namespace PointInPolygon
                 y >= vector_1.P2.Y - epsilon && y <= vector_1.P2.Y + epsilon);
         }
 
-        public void Rotate()
+        private void Rotate()
         {
             double angle_radians = Math.PI * angle / 180;
             float x = (float)(P1.X + point_1 * Math.Cos(angle_radians) - point_2 * Math.Sin(angle_radians));
@@ -104,7 +104,27 @@ namespace PointInPolygon
             P2 = new(x, y);
         }
 
-        public static void Run(List<Vector> vectors, Vector vector, ConsoleColor[] colors, bool flag = true)
+        public static PointF GeneratePointF(PointF[] points, Bitmap image)
+        {
+            Random random = new();
+            float X = random.Next(0, image.Width), Y = 0.0f;
+            float bMinY = 0.0f, bMaxY = 0.0f, bMinX = 0.0f, bMaxX = 0.0f;
+            Lists.GetMaxMinValue(points, ref bMinY, ref bMaxY, ref bMinX, ref bMaxX);
+
+            if (X <= bMaxX + 1 && X >= bMinX - 1)
+            {
+                Y = Lists.GetCoordinateY(points, image);
+                X = random.Next(0, image.Width);
+            }
+            else
+            {
+                Y = random.Next(0, image.Height);
+            }
+
+            return new(X, Y);
+        }
+
+        public static void Run(List<Vector> vectors, Vector vector, ConsoleColor[] colors, Graphics graphics, bool flag = true)
         {
             int count = 0;
 
@@ -117,9 +137,10 @@ namespace PointInPolygon
                     vector.Rotate();
                     vector.point_1 = vector.P2.X - vector.P1.X;
                     vector.point_2 = vector.P2.Y - vector.P1.Y;
+                    graphics.DrawLine(new(Color.Coral), vector.P1, vector.P2);
                     Console.WriteLine($"Происходит поворот отрезка на {angle} градусов");
                     Console.WriteLine($"Новые координаты точки F: x = {vector.P2.X}, y = {vector.P2.Y}");
-                    Run(vectors, vector, colors);
+                    Run(vectors, vector, colors, graphics);
                     return;
                 }
 

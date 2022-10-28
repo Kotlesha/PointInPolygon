@@ -4,7 +4,7 @@ namespace PointInPolygon
 {
     internal static class Colorise
     {
-        public static ConsoleColor[] GetColors(List<Vector> vectors)
+        public static ConsoleColor[] GetConsoleColors(List<Vector> vectors)
         {
             Random random = new();
             ConsoleColor[] consoleColors = new ConsoleColor[vectors.Count];
@@ -14,7 +14,7 @@ namespace PointInPolygon
             {
                 int color = random.Next(1, 16);
 
-                while (colors.Contains(color) && !CheckValue((ConsoleColor)color))
+                while (colors.Contains(color))
                 {
                     color = random.Next(1, 16);
                 }
@@ -30,45 +30,53 @@ namespace PointInPolygon
             return consoleColors;
         }
 
-        private static bool CheckValue(ConsoleColor color)
+        public static Color[] GetColors(ConsoleColor[] colors)
         {
-            List<Color> colors = GetAllColors();
+            Color[] all_colors = new Color[colors.Length];
 
-            foreach (var element in colors)
+            for (int i = 0; i < all_colors.Length; i++)
             {
-                if (element.ToString().Equals(color.ToString()))
-                {
-                    return true;
-                }
+                all_colors[i] = FromColor(colors[i]);
             }
 
-            return false;
+            return all_colors;
         }
 
-        private static List<Color> GetAllColors()
+        private static Color FromColor(ConsoleColor color)
         {
-            List<Color> colors = new();
-
-            foreach (var colorValue in Enum.GetValues(typeof(KnownColor)))
+            switch (color)
             {
-                Color color = Color.FromKnownColor((KnownColor)colorValue);
-                colors.Add(color);
+                case ConsoleColor.Black:
+                    return Color.Black;
+                case ConsoleColor.Blue:
+                    return Color.Blue;
+                case ConsoleColor.Cyan:
+                    return Color.Cyan;
+                case ConsoleColor.DarkBlue:
+                    return Color.DarkBlue;
+                case ConsoleColor.DarkGray:
+                    return Color.DarkGray;
+                case ConsoleColor.DarkGreen:
+                    return Color.DarkGreen;
+                case ConsoleColor.DarkMagenta:
+                    return Color.DarkMagenta;
+                case ConsoleColor.DarkRed:
+                    return Color.DarkRed;
+                case ConsoleColor.DarkYellow:
+                    return Color.FromArgb(255, 128, 128, 0);
+                case ConsoleColor.Gray:
+                    return Color.Gray;
+                case ConsoleColor.Green:
+                    return Color.Green;
+                case ConsoleColor.Magenta:
+                    return Color.Magenta;
+                case ConsoleColor.Red:
+                    return Color.Red;
+                case ConsoleColor.White:
+                    return Color.White;
+                default:
+                    return Color.Yellow;
             }
-
-            return colors;
-        }
-
-        public static Bitmap Paint(PointF[] points, Bitmap bitmap, ConsoleColor[] color)
-        {
-            Graphics graphics = Graphics.FromImage(bitmap);
-            Color[] colors = new Color[color.Length];
-
-            for (int i = 0; i < points.Length - 1; i++)
-            {
-                graphics.DrawLine(new(Color.FromName(Convert.ToString(color[i]))), points[i], points[i + 1]);
-            }
-
-            return bitmap;
         }
     }
 }
