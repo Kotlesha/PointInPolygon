@@ -7,7 +7,7 @@ namespace PointInPolygon
         private float point_1;
         private float point_2;
         private const float epsilon = 0.01f;
-        private const double angle = 10.0;
+        private const double angle = 8.0;
 
         private float LengthOfVector => (float)Math.Sqrt(Math.Pow(point_1, 2) + Math.Pow(point_2, 2));
 
@@ -49,10 +49,9 @@ namespace PointInPolygon
 
         private static Vector NormaliseVector(Vector vector) => new(vector.point_1 / vector.LengthOfVector, vector.point_2 / vector.LengthOfVector);
 
-        private static bool Intersection(Vector vector_1, Vector vector_2, ConsoleColor color, ref bool flag)
+        private static bool Intersection(Vector vector_1, Vector vector_2, ref bool sign, ref bool flag)
         {
             Vector v1 = NormaliseVector(vector_1), v2 = NormaliseVector(vector_2);
-            Console.ForegroundColor = color;
 
             if (Math.Abs(vector_1.P1.X - vector_2.P1.X) < epsilon && Math.Abs(vector_1.P1.Y - vector_2.P1.Y) < epsilon
                 && Math.Abs(vector_1.P2.X - vector_2.P2.X) < epsilon && Math.Abs(vector_1.P2.Y - vector_2.P2.Y) < epsilon)
@@ -80,11 +79,18 @@ namespace PointInPolygon
             float x = vector_2.P1.X + vector_2.point_1 * t2, y = vector_2.P1.Y + vector_2.point_2 * t2;
             Console.WriteLine($"Точка пересечения: x = {x}, y = {y}");
 
-            if (IntersectionVertex(vector_2, x, y))
+            while (IntersectionVertex(vector_2, x, y))
             {
                 flag = false;
+                Console.WriteLine("Отрезок проходит через вершину!");
+                vector_2.Rotate();
+                vector_2.point_1 = vector_2.P2.X - vector_2.P1.X;
+                vector_2.point_2 = vector_2.P2.Y - vector_2.P1.Y;
+                sign = true;
+                Console.WriteLine($"Происходит поворот отрезка на {angle} градусов");
+                Console.WriteLine($"Новые координаты точки F: x = {vector_2.P2.X}, y = {vector_2.P2.Y}");
             }
-            
+
             return true;
         }
 
@@ -104,61 +110,66 @@ namespace PointInPolygon
             P2 = new(x, y);
         }
 
-        public static PointF GeneratePointF(PointF[] points, Bitmap image)
+        public static PointF GeneratePointF(PointF[] points)
         {
             Random random = new();
-            float X = random.Next(0, image.Width), Y = 0.0f;
+            float X = random.Next(0, 500), Y = 0.0f;
             float bMinY = 0.0f, bMaxY = 0.0f, bMinX = 0.0f, bMaxX = 0.0f;
             Lists.GetMaxMinValue(points, ref bMinY, ref bMaxY, ref bMinX, ref bMaxX);
 
             if (X <= bMaxX + 1 && X >= bMinX - 1)
             {
-                Y = Lists.GetCoordinateY(points, image);
-                X = random.Next(0, image.Width);
+                Y = Lists.GetCoordinateY(points);
+                X = random.Next(0, 500);
             }
             else
             {
-                Y = random.Next(0, image.Height);
+                Y = random.Next(0, 500);
             }
 
             return new(X, Y);
         }
 
-        public static void Run(List<Vector> vectors, Vector vector, ConsoleColor[] colors, Graphics graphics, bool flag = true)
+        public static void Run(List<Vector> vectors, Vector vector, ref bool sign, bool flag = true)
         {
             int count = 0;
 
-            for (int i = 0; i < vectors.Count; i++)
+            while (true)
             {
-                if (!flag)
+                for (int i = 0; i < vectors.Count; i++)
                 {
-                    Console.ForegroundColor = colors[i];
-                    Console.WriteLine("Отрезок проходит через вершину!");
-                    vector.Rotate();
-                    vector.point_1 = vector.P2.X - vector.P1.X;
-                    vector.point_2 = vector.P2.Y - vector.P1.Y;
-                    graphics.DrawLine(new(Color.Coral), vector.P1, vector.P2);
-                    Console.WriteLine($"Происходит поворот отрезка на {angle} градусов");
-                    Console.WriteLine($"Новые координаты точки F: x = {vector.P2.X}, y = {vector.P2.Y}");
-                    Run(vectors, vector, colors, graphics);
-                    return;
+                    if (!flag)
+                    {
+                        break;
+                    }
+
+                    if (Intersection(vectors[i],vector, ref sign, ref flag))
+                    {
+                        count++;
+                    }
                 }
 
-                if (Intersection(vectors[i], vector, colors[i], ref flag))
+                if (flag)
                 {
-                    count++;
+                    Console.WriteLine($"Количество пересечений: {count}");
+
+                    if (count % 2 != 0)
+                    {
+                        Console.WriteLine($"Точка x = {vector.P1.X}, y = {vector.P1.Y} расположена внутри данного многоульника");
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Точка x = {vector.P1.X}, y = {vector.P2.Y} расположена за пределами данного многоульника");
+                    }
+
+                    break;
                 }
-            }
-
-            Console.WriteLine($"Количество пересечений: {count}");
-
-            if (count % 2 != 0)
-            {
-                Console.WriteLine($"Точка x = {vector.P1.X}, y = {vector.P1.Y} расположена внутри данного многоульника");
-            }
-            else
-            {
-                Console.WriteLine($"Точка x = {vector.P1.X}, y = {vector.P2.Y} расположена за пределами данного многоульника");
+                else
+                {
+                    count = 0;
+                    flag = true;
+                    continue;
+                }
             }
         }
     }

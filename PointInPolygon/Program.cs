@@ -1,4 +1,6 @@
-﻿using System.Drawing;
+﻿using OpenTK.Windowing.Common;
+using OpenTK.Windowing.Desktop;
+using System.Drawing;
 
 namespace PointInPolygon
 {
@@ -6,28 +8,36 @@ namespace PointInPolygon
     {
         static void Main(string[] args)
         {
-            Bitmap image = new(500, 500);
-            Graphics graphics = Graphics.FromImage(image);
             PointF[] points = WorkFiles.GetListOfPoints("points.txt");
             PointF P = WorkFiles.GetPoint(@"C:\Labs\points.txt");
             List<Vector> vectors = Vector.GetVectors(points);
-            ConsoleColor[] ConsoleColors = Colorise.GetConsoleColors(vectors);
-            Color[] colors = Colorise.GetColors(ConsoleColors);
-            graphics.TranslateTransform(image.Width / 2.0f, image.Height / 2.0f);
+            //PointF F = new(193.786f, -158.445f);
+            PointF F = Vector.GeneratePointF(points);
+            Console.WriteLine($"Точка P {P}, точка F {F}");
+            Vector vector = new(P, F);
+            bool sign = false;
+            Vector.Run(vectors, vector, ref sign);
+            PointF F1 = vector.P2;
 
-            for (int i = 0; i < points.Length - 1; i++)
+            NativeWindowSettings settings = new()
             {
-                graphics.DrawLine(new(colors[i]), points[i], points[i + 1]);
+                Size = new(500, 500),
+                WindowBorder = WindowBorder.Fixed,
+                Title = "Draw Polygon",
+                Profile = ContextProfile.Compatability
+            };
+            OpenGL Gl;
+
+            if (!sign)
+            {
+                Gl = new(GameWindowSettings.Default, settings, points, P, F, sign);
+            }
+            else
+            {
+                Gl = new(GameWindowSettings.Default, settings, points, P, F, F1, sign);
             }
 
-            PointF F = Vector.GeneratePointF(points, image);
-            //PointF F = new(193.786f, -158.445f);
-            Console.WriteLine($"Точка P {P}, точка F {F}");
-            graphics.DrawLine(new(Color.Yellow), P, F);
-            Vector vector = new(P, F);
-            Vector.Run(vectors, vector, ConsoleColors, graphics);
-            image.Save(@"C:\Labs\polygon.png");
-            Console.ResetColor();
+            Gl.Run();
         }
     }
 }

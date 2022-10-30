@@ -53,11 +53,26 @@ namespace PointInPolygon
             bMaxX = pointsX.Max();
         }
 
-        public static float GetCoordinateY(PointF[] points, Bitmap image)
+        public static float GetCoordinateY(PointF[] points)
         {
             float bMinY = 0.0f, bMaxY = 0.0f, bMinX = 0.0f, bMaxX = 0.0f;
             GetMaxMinValue(points, ref bMinY, ref bMaxY, ref bMinX, ref bMaxX);
-            return GetElement(bMinY, bMaxY, image.Height);
+            return GetElement(bMinY, bMaxY, 500);
+        }
+
+        public static PointF[] GetNewCoordinate(params PointF[] points)
+        {
+            float Min = -250.0f, Max = 250.0f;
+            PointF[] new_points = new PointF[points.Length];
+
+            for (int i = 0; i < new_points.Length; i++)
+            {
+                float x = ((points[i].X - Min) / (Max - Min)) * (1.0f + 1.0f) - 1.5f;
+                float y = ((points[i].Y - Min) / (Max - Min)) * (1.0f + 1.0f) - 0.4f;
+                new_points[i] = new PointF(x, y);
+            }
+
+            return new_points;
         }
     }
 }
