@@ -6,8 +6,10 @@ namespace PointInPolygon
     {
         private float point_1;
         private float point_2;
-        private const float epsilon = 0.01f;
+        private const float epsilon = 0.1f;
         private const double angle = 8.0;
+
+        public List<PointF> ArrayF { get; } = new();
 
         private float LengthOfVector => (float)Math.Sqrt(Math.Pow(point_1, 2) + Math.Pow(point_2, 2));
 
@@ -86,6 +88,7 @@ namespace PointInPolygon
                 vector_2.Rotate();
                 vector_2.point_1 = vector_2.P2.X - vector_2.P1.X;
                 vector_2.point_2 = vector_2.P2.Y - vector_2.P1.Y;
+                vector_2.ArrayF.Add(vector_2.P2);
                 sign = true;
                 Console.WriteLine($"Происходит поворот отрезка на {angle} градусов");
                 Console.WriteLine($"Новые координаты точки F: x = {vector_2.P2.X}, y = {vector_2.P2.Y}");

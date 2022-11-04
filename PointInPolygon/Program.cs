@@ -9,7 +9,7 @@ namespace PointInPolygon
         static void Main(string[] args)
         {
             PointF[] points = WorkFiles.GetListOfPoints("points.txt");
-            PointF P = WorkFiles.GetPoint(@"C:\Labs\points.txt");
+            PointF P = WorkFiles.GetPoint("points.txt");
             List<Vector> vectors = Vector.GetVectors(points);
             //PointF F = new(193.786f, -158.445f);
             PointF F = Vector.GeneratePointF(points);
@@ -17,8 +17,7 @@ namespace PointInPolygon
             Vector vector = new(P, F);
             bool sign = false;
             Vector.Run(vectors, vector, ref sign);
-            PointF F1 = vector.P2;
-
+            List<PointF> ArrayF = vector.ArrayF;
             NativeWindowSettings settings = new()
             {
                 Size = new(500, 500),
@@ -34,7 +33,7 @@ namespace PointInPolygon
             }
             else
             {
-                Gl = new(GameWindowSettings.Default, settings, points, P, F, F1, sign);
+                Gl = new(GameWindowSettings.Default, settings, points, P, F, ArrayF, sign);
             }
 
             Gl.Run();

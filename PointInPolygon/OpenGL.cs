@@ -11,7 +11,7 @@ namespace PointInPolygon
         private PointF[] points;
         private PointF P;
         private PointF F;
-        private PointF F1;
+        private List<PointF> ArrayF;
         private bool sign;
 
         public OpenGL(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings, PointF[] points, PointF P, PointF F, bool sign) : base(gameWindowSettings, nativeWindowSettings)
@@ -22,11 +22,10 @@ namespace PointInPolygon
             this.sign = sign;
         }
 
-        public OpenGL(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings, PointF[] points, PointF P, PointF F, PointF F1, bool sign) : this(gameWindowSettings, nativeWindowSettings, points, P, F, sign)
+        public OpenGL(GameWindowSettings gameWindowSettings, NativeWindowSettings nativeWindowSettings, PointF[] points, PointF P, PointF F, List<PointF> ArrayF, bool sign) : this(gameWindowSettings, nativeWindowSettings, points, P, F, sign)
         {
-            this.F1 = F1;
+            this.ArrayF = ArrayF;
         }
-
 
         protected override void OnRenderFrame(FrameEventArgs args)
         {
@@ -55,10 +54,13 @@ namespace PointInPolygon
             if (sign)
             {
                 GL.Color3(Color.Yellow);
-                PointF[] new_points_line1 = Lists.GetNewCoordinate(P, F1);
-                for (int i = 0; i < new_points_line1.Length; i++)
+                for (int j = 0; j < ArrayF.Count; j++)
                 {
-                    GL.Vertex2(new_points_line1[i].X, new_points_line1[i].Y);
+                    PointF[] new_points_line1 = Lists.GetNewCoordinate(P, ArrayF[j]);
+                    for (int i = 0; i < new_points_line1.Length; i++)
+                    {
+                        GL.Vertex2(new_points_line1[i].X, new_points_line1[i].Y);
+                    }
                 }
             }
 
